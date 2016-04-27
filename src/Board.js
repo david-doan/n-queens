@@ -110,11 +110,34 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
+      var rowIndex = 0;
+      var rowLength = this.get(rowIndex).length;
+      var numPieces = 0;
+      var board = this.rows();
+
+      console.log(this);
+
+      for (var i = 0; i < rowLength; i++) {
+
+        if (board[i][colIndex] === 1) {
+          numPieces ++;
+        }
+        if (numPieces > 1) {
+          return true;
+        }
+      }
+
       return false; // fixme
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
+      var rowLength = this.get(0).length;
+      for (var i = 0; i < rowLength; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
