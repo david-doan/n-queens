@@ -17,15 +17,17 @@ var createManyArray = function(n) {
       var newArr = newArrValidContainer[0];
       var newValidObj = newArrValidContainer[1];
 
+      // instead of creating a board every time, lets try keeping one board, and toggle pieces
+      // toggle off a newly added piece, then toggle on the next position 
       var newBrd = new Board(newArr);
-      if ( newBrd.hasAnyConflicts() ) {
-        continue;  
-      }
+      // if ( newBrd.hasAnyConflicts() ) {
+      //   continue;  
+      // }
 
       // check if we put our last piece down and answer is NOT duplicate
       if (currD >= n - 1 && uniqRows[ JSON.stringify(newArr) ] === undefined) {
         // debugger;
-        console.log('I am on ' + currD + ' piece.');
+        // console.log('I am on ' + currD + ' piece.');
         answer.push(newBrd);
         uniqRows[ JSON.stringify(newArr) ] = 1;
       } else if (currD < n - 1) {
