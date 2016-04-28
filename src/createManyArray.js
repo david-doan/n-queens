@@ -23,7 +23,7 @@ var createManyArray = function(n) {
       }
 
       // check if we put our last piece down and answer is NOT duplicate
-      if (currD >= n-1 && uniqRows[ JSON.stringify(newArr) ] === undefined) {
+      if (currD >= n - 1 && uniqRows[ JSON.stringify(newArr) ] === undefined) {
         // debugger;
         console.log('I am on ' + currD + ' piece.');
         answer.push(newBrd);
@@ -51,11 +51,24 @@ var fillNextEmptySpace = function (partialArray, nextValidSpace, n, objValid) {
   var newR = objValid[nextValidSpace][0];
   var newC = objValid[nextValidSpace][1];
   answer[newR][newC] = 1; // add piece to valid position
+  var majorDiaIntersect = newR - newC;
+  var minorDiaIntersect = newR + newC;
 
   for ( var index in nextValidObj) {
-    if (nextValidObj[index][0] === newR || nextValidObj[index][1] === newC) {
-      delete nextValidObj[index];
+    //debugger;
+    if ( nextValidObj[index] ) {
+      if (nextValidObj[index][0] === newR || nextValidObj[index][1] === newC) {
+        delete nextValidObj[index];
+      } else {
+        var b = nextValidObj[index][0] - nextValidObj[index][1];
+        var d = nextValidObj[index][0] + nextValidObj[index][1];
+     
+        if (b === majorDiaIntersect || d === minorDiaIntersect) {
+          delete nextValidObj[index];
+        }  
+      }      
     }
+    
   }
 
 
@@ -113,7 +126,7 @@ var makeEmptyValid = function(n) {
   var index = 0;
   for (var r = 0; r < n; r++) {
     for (var c = 0; c < n; c++) {
-      answer[index] = [r,c];
+      answer[index] = [r, c];
       index++;
     }
   }
