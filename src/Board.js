@@ -96,7 +96,7 @@
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      var rowLength = this.get(0).length;
+      var rowLength = this.attributes.n;
       for (var i = 0; i < rowLength; i++) {
         if (this.hasRowConflictAt(i)) {
           return true;
@@ -113,7 +113,7 @@
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
       var rowIndex = 0;
-      var rowLength = this.get(rowIndex).length;
+      var rowLength = this.attributes.n;
       var numPieces = 0;
       var board = this.rows();
 
@@ -150,7 +150,7 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(diagColIndex, rowIndex) {
-      var length = this.get(rowIndex).length;
+      var length = this.attributes.n;
       var numPieces = 0;
       var board = this.rows();
       var colIndex = diagColIndex;
@@ -193,12 +193,15 @@
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(diagColIndex, rowIndex) {
 
-      var length = this.get(rowIndex).length;
+      var length = this.attributes.n;
       var numPieces = 0;
       var board = this.rows();
       var colIndex = diagColIndex;
         // check corner cases
-      if (diagColIndex === length - 1 && rowIndex === 0) {
+      if (colIndex === 0 && rowIndex === 0) {
+        return false;
+      }
+      if (colIndex === length - 1 && rowIndex === length - 1) {
         return false;
       }
       //count pieces in diagonal
@@ -214,8 +217,8 @@
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      var length = this.get(0).length;
-      for (var col = 3; col >= 0; col--) {
+      var length = this.attributes.n;
+      for (var col = length - 1; col >= 0; col--) {
         if (this.hasMinorDiagonalConflictAt(col, 0)) {
           return true;
         }
@@ -226,7 +229,27 @@
         }
       }
       return false; // fixme
+    },
+
+    hasAnyConflicts: function() {
+      if ( this.hasAnyColConflicts() || this.hasAnyRowConflicts() || 
+        this.hasAnyMinorDiagonalConflicts() || 
+        this.hasAnyMajorDiagonalConflicts() ) { 
+        return true;
+      }
+      return false;
+
+    },
+
+    hasAnyRookConflicts: function() {
+      if (this.hasAnyColConflicts() || this.hasAnyRowConflicts()) { 
+        return true;
+      }
+      return false;
+
     }
+
+
 
     /*--------------------  End of Helper Functions  ---------------------*/
 
@@ -240,5 +263,8 @@
       });
     });
   };
+
+  // import createManyArray functionality into board
+
 
 }());

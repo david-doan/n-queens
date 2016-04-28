@@ -1,26 +1,33 @@
 var createManyArray = function(n) {
   var answer = [];
+  var uniqRows = [];
   var n = n;
-  var emptyNxN = makeEmptyMatrix(n);
+  var emptyNxN = new Board({n: n});
 
-  var createArray = function(partialArray, currDec) {
-    var partialArr = partialArray;
+  var createBoards = function(partialBoard, currDec) {
+    var partialBrd = partialBoard;
+    var partialArr = partialBrd.rows();
     var currD = currDec;
 
     var emptySpaces = Math.pow(n, 2) - currD;
 
     for (var spaces = 0; spaces < emptySpaces; spaces++ ) {
       var newArr = fillNextEmptySpace(partialArr, spaces, n);
-      if (currD >= n - 1) {
-        answer.push(newArr);
+      var newBrd = new Board(newArr);
+      if ( newBrd.hasAnyConflicts() ) {
+        continue;  
+      }
+      // for some reason the JSON.stringify memo of newArr is not working
+      if (currD >= n - 1 && uniqRows.indexOf( JSON.stringify(newArr)) === -1) {
+        answer.push(newBrd);
+        uniqRows.push( JSON.stringify(newArr) );
       } else {
-        createArray (newArr, currD + 1);    
+        createBoards (newBrd, currD + 1);    
       }
     }        
   };
 
-  createArray(emptyNxN, 0, 0);
-
+  createBoards(emptyNxN, 0, 0);
   return answer;
 };
 
