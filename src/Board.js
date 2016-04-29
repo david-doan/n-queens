@@ -117,7 +117,7 @@
       var numPieces = 0;
       var board = this.rows();
 
-      console.log(this);
+      //console.log(this);
 
       for (var i = 0; i < rowLength; i++) {
 

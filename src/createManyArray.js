@@ -10,7 +10,7 @@ var createManyArray = function(n) {
     // var partialArr = partialBrd.rows();
     var currD = currDec;
     var prevSpace;
-    if(partialBoard.rows()[0][0] === 1 && partialBoard.rows()[3][2]===1){debugger;}
+    //if(partialBoard.rows()[0][0] === 1 && partialBoard.rows()[3][2]===1){debugger;}
     for (var validSpace in objValid ) {
       //somehow keep track of where prev Piece was placed and toggle it off when placing next spot
       var newArrValidContainer = fillNextEmptySpace(partialBoard, validSpace, n, objValid, prevSpace, currD);
@@ -27,7 +27,7 @@ var createManyArray = function(n) {
         // console.log('I am on ' + currD + ' piece.');
         answer.push( JSON.parse(JSON.stringify(partialBoard.rows())) );
         uniqRows[ JSON.stringify(partialBoard.rows()) ] = 1;
-        prevSpace = undefined;
+        // prevSpace = undefined;
       } 
       // else if ( currD === (n - 1) ) { // board was not successful, toggle off the last piece
       //   partialBoard.togglePiece(prevSpace[0], prevSpace[1]);
@@ -36,11 +36,17 @@ var createManyArray = function(n) {
         createBoards (partialBoard, currD + 1, newValidObj);    
       }
     }
-    if ( prevSpace && partialBoard.rows()[prevSpace[0]][prevSpace[1]] === 1) {
+
+    // if we are not at the last piece and there are no valid spaces left, we should turn off
+    // the piece we just put down
+    if (prevSpace) {
       partialBoard.togglePiece(prevSpace[0], prevSpace[1]);
     }
+    // if (prevSpace && partialBoard.rows()[prevSpace[0]][prevSpace[1]] === 1) {
+    //   partialBoard.togglePiece(prevSpace[0], prevSpace[1]);
+    // }
   };
-  createBoards(emptyNxN, 0, fullValidArr);    
+  createBoards(emptyNxN, 0, fullValidArr);
   return answer;
 };
 
@@ -85,11 +91,6 @@ var fillNextEmptySpace = function (theBoard, nextValidSpace, n, objValid, indexP
   }
 
   
-  // if we are not at the last piece and there are no valid spaces left, we should turn off
-  // the piece we just put down
-  if (pieceNum < n - 1 && Object.keys(nextValidObj).length === 0) {
-    theBoard.togglePiece(newR, newC);
-  }
 
   return [nextValidObj, [newR, newC] ];
 };
