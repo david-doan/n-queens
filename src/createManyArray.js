@@ -6,53 +6,64 @@ var createManyArray = function(n) {
   var fullValidArr = makeEmptyValid(n);
 
   var createBoards = function(partialBoard, currDec, objValid) {
-    var partialBrd = partialBoard;
-    var partialArr = partialBrd.rows();
+    // var partialBrd = partialBoard;
+    // var partialArr = partialBrd.rows();
     var currD = currDec;
-
-    var emptySpaces = Math.pow(n, 2) - currD;
-
+    var prevSpace;
+    if(partialBoard.rows()[0][0] === 1 && partialBoard.rows()[3][2]===1){debugger;}
     for (var validSpace in objValid ) {
-      var newArrValidContainer = fillNextEmptySpace(partialArr, validSpace, n, objValid);
-      var newArr = newArrValidContainer[0];
-      var newValidObj = newArrValidContainer[1];
-
+      //somehow keep track of where prev Piece was placed and toggle it off when placing next spot
+      var newArrValidContainer = fillNextEmptySpace(partialBoard, validSpace, n, objValid, prevSpace, currD);
+      var newValidObj = newArrValidContainer[0];
+      prevSpace = newArrValidContainer[1];
+      
       // instead of creating a board every time, lets try keeping one board, and toggle pieces
       // toggle off a newly added piece, then toggle on the next position 
-      var newBrd = new Board(newArr);
-      // if ( newBrd.hasAnyConflicts() ) {
-      //   continue;  
-      // }
 
       // check if we put our last piece down and answer is NOT duplicate
-      if (currD >= n - 1 && uniqRows[ JSON.stringify(newArr) ] === undefined) {
+      if (currD === (n - 1) && uniqRows[ JSON.stringify( partialBoard.rows() ) ] === undefined && !(partialBoard.hasAnyConflicts()) ) {
         // debugger;
+        // if (!partialBoard.hasAnyConflicts()) debugger;
         // console.log('I am on ' + currD + ' piece.');
-        answer.push(newBrd);
-        uniqRows[ JSON.stringify(newArr) ] = 1;
-      } else if (currD < n - 1) {
-        createBoards (newBrd, currD + 1, newValidObj);    
+        answer.push( JSON.parse(JSON.stringify(partialBoard.rows())) );
+        uniqRows[ JSON.stringify(partialBoard.rows()) ] = 1;
+        prevSpace = undefined;
+      } 
+      // else if ( currD === (n - 1) ) { // board was not successful, toggle off the last piece
+      //   partialBoard.togglePiece(prevSpace[0], prevSpace[1]);
+      // } 
+      else if (currD < n - 1) {
+        createBoards (partialBoard, currD + 1, newValidObj);    
       }
-    }        
+    }
+    if ( prevSpace && partialBoard.rows()[prevSpace[0]][prevSpace[1]] === 1) {
+      partialBoard.togglePiece(prevSpace[0], prevSpace[1]);
+    }
   };
-
-  createBoards(emptyNxN, 0, fullValidArr);
+  createBoards(emptyNxN, 0, fullValidArr);    
   return answer;
 };
 
+
+
 // objValid  is obj contains array of valid possible indices { 0:[r,c], 1:[r,c], 2:[r,c], 3:[r,c] }
-var fillNextEmptySpace = function (partialArray, nextValidSpace, n, objValid) {
-  var answer = makeCopy(partialArray);
-  // var rowPrevPiece = indexPrevPiece[0];
-  // var colPrevPiece = indexPrevPiece[1];
+var fillNextEmptySpace = function (theBoard, nextValidSpace, n, objValid, indexPrevPiece, pieceNum) {
   var nextValidObj = JSON.parse(JSON.stringify(objValid));
 
   // debugger;
+  // toggle off prev piece
+  if (indexPrevPiece && theBoard.rows()[indexPrevPiece[0]][indexPrevPiece[1]] === 1) {
+    var rowPrevPiece = indexPrevPiece[0];
+    var colPrevPiece = indexPrevPiece[1];
+    theBoard.togglePiece(rowPrevPiece, colPrevPiece); 
+  }
 
-  // this loop will put down the current piece
+  // put down the current piece
   var newR = objValid[nextValidSpace][0];
   var newC = objValid[nextValidSpace][1];
-  answer[newR][newC] = 1; // add piece to valid position
+  // if(newR === 3 && newC === 2 && pieceNum === 2){debugger;}
+  theBoard.togglePiece(newR, newC);
+
   var majorDiaIntersect = newR - newC;
   var minorDiaIntersect = newR + newC;
 
@@ -73,29 +84,14 @@ var fillNextEmptySpace = function (partialArray, nextValidSpace, n, objValid) {
     
   }
 
+  
+  // if we are not at the last piece and there are no valid spaces left, we should turn off
+  // the piece we just put down
+  if (pieceNum < n - 1 && Object.keys(nextValidObj).length === 0) {
+    theBoard.togglePiece(newR, newC);
+  }
 
-  // if we are not at last piece but there is no valid places to put that piece, 
-  // we need to fail that tree
-
-  // for (var r = 0; r < n; r++) {
-  //   if(r === rowPrevPiece){
-  //     r++;
-  //     continue;
-  //   }
-  //   for (var c = 0; c < n; c++) {
-  //     if (c === colPrevPiece) {
-  //       c++;
-  //       continue;
-  //     }
-  //     if (answer[r][c] === 0) {
-  //       emptySpaceCounter++; // count number of empty spaces
-  //     }
-  //     if (emptySpaceCounter === numPossFilled + 1) {
-  //       answer[r][c] = 1; // add piece
-  //     }
-  //   }
-  // }
-  return [answer, nextValidObj];
+  return [nextValidObj, [newR, newC] ];
 };
 
 var makeCopy = function(array) {
